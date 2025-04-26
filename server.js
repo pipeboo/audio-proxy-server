@@ -4,7 +4,9 @@ const axios = require('axios');
 
 
 const app = express();
-app.use(cors());
+app.use(cors({
+  origin: "https://huayu-recording-web.netlify.app"  // 只允許來自Netlify網頁的請求
+}));
 app.use(express.json());
 
 const WIX_FUNCTION_URL = "https://kps0980.wixsite.com/flower-for-you/_functions/saveAudio"; // 改成你的Wix HTTP Function網址
