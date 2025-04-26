@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+
+<head>
+  <meta charset="UTF-8">
+  <title>錄音上傳 + QRcode產生</title>
+</head>
+
+<body>
+  <h1>錄音 + 資料送出</h1>
+
+  <label>名字：<input type="text" id="userName"></label><br>
+  <label>Email：<input type="email" id="userEmail"></label><br><br>
+
+  <button id="startButton">開始錄音</button>
+  <button id="stopButton">停止錄音</button>
+  <button id="uploadButton" disabled>上傳錄音</button>
+
+  <p id="statusText"></p>
+
+  <audio id="audioPreview" controls style="margin-top:20px;"></audio><br>
+  <img id="qrCode" style="margin-top:20px;" />
+
+  <script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const defaultName = urlParams.get('name') || '';
+    const defaultEmail = urlParams.get('email') || '';
+
+    document.addEventListener("DOMContentLoaded", () => {
+      document.getElementById('userName').value = defaultName;
+      document.getElementById('userEmail').value = defaultEmail;
+    });
+    let recorder;
+    let audioBlob;
+    let recordingTimer;
+
+    const CLOUDINARY_URL = 'https://api.cloudinary.com/v1_1/dcqb2xofg/auto/upload';
+    const CLOUDINARY_UPLOAD_PRESET = 'audioUploads';
+
+    document.getElementById('startButton').onclick = async () => {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      recorder = new MediaRecorder(stream);
+      const chunks = [];
+
+      recorder.ondataavailable = e => chunks.push(e.data);
+      recorder.onstop = () => {
+        audioBlob = new Blob(chunks, { type: 'audio/webm' });
+        document.getElementById('uploadButton').disabled = false;
+        document.getElementById('statusText').textContent = "錄音完成！可以上傳了。";
+        document.getElementById('audioPreview').src = URL.createObjectURL(audioBlob);
+      };
+
+      recorder.start();
+      document.getElementById('statusText').textContent = "錄音中...";
+      recordingTimer = setTimeout(() => {
+        recorder.stop();
+        document.getElementById('statusText').textContent = "自動停止：錄音達到30秒";
+      }, 30000); // 最長30秒錄音
+    };
+
+    document.getElementById('stopButton').onclick = () => {
+      if (recorder) {
+        recorder.stop();
+        clearTimeout(recordingTimer);
+        document.getElementById('statusText').textContent = "錄音停止。";
+      }
+    };
+
+    document.getElementById('uploadButton').onclick = async () => {
+      if (!audioBlob) return;
+
+      const formData = new FormData();
+      formData.append('file', audioBlob);
+      formData.append('upload_preset', 'audioUploads');
+
+      document.getElementById('statusText').textContent = "上傳錄音中...";
+      try {
+        const cloudinaryResponse = await fetch(CLOUDINARY_URL, {
+          method: 'POST',
+          body: formData
+        });
+        if (!cloudinaryResponse.ok) {
+          throw new Error("Cloudinary上傳失敗");
+        }
+        const cloudinaryResult = await cloudinaryResponse.json();
+        const realAudioUrl = cloudinaryResult.secure_url;
+
+        const userName = document.getElementById('userName').value;
+        const userEmail = document.getElementById('userEmail').value;
+
+        const qrCodeUrl = `https://chart.googleapis.com/chart?chs=400x400&cht=qr&chl=${encodeURIComponent(realAudioUrl)}`;
+
+        document.getElementById('qrCode').src = qrCodeUrl;
+
+        document.getElementById('statusText').textContent = "正在傳送資料到主站...";
+
+        await fetch("https://audio-proxy-server-one.vercel.app/save-audio", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            name: userName,
+            email: userEmail,
+            audioUrl: realAudioUrl,
+            qrCodeUrl: qrCodeUrl
+          })
+        });
+
+        document.getElementById('statusText').textContent = "上傳成功！可以去主站查看囉～";
+
+      } catch (error) {
+        console.error(error);
+        document.getElementById('statusText').textContent = "上傳失敗：" + error.message;
+      }
+    };
+  </script>
+
+</body>
+
+</html>
