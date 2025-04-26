@@ -5,7 +5,9 @@ const axios = require('axios');
 
 const app = express();
 app.use(cors({
-  origin: "https://huayu-recording-web.netlify.app"  // 只允許來自Netlify網頁的請求
+  origin: ["https://huayu-recording-web.netlify.app"],
+  methods: ["GET", "POST", "OPTIONS"],
+  allowedHeaders: ["Content-Type"]
 }));
 app.use(express.json());
 
