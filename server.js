@@ -11,7 +11,7 @@ app.use(cors({
 }));
 app.use(express.json());
 
-const WIX_FUNCTION_URL = "https://kps0980.wixsite.com/flower-for-you/_functions/saveAudio"; // 改成你的Wix HTTP Function網址
+const WIX_FUNCTION_URL = "https://kps0980.wixsite.com/huayu-dryflower/_functions/saveAudio"; // 改成你的Wix HTTP Function網址
 
 app.post('/save-audio', async (req, res) => {
   try {
