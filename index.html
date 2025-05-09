@@ -171,15 +171,6 @@
   </div>
 
   <script>
-    // 讀取網址參數填入表單
-    const params = new URLSearchParams(window.location.search);
-    const name = params.get("name") || "";
-    const email = params.get("email") || "";
-    document.getElementById("userName").value = name;
-    document.getElementById("userEmail").value = email;
-    console.log("✅ 帶入名字：", name);
-    console.log("✅ 帶入信箱：", email);
-
     const CLOUDINARY_URL = 'https://api.cloudinary.com/v1_1/dcqb2xofg/auto/upload';
     const CLOUDINARY_UPLOAD_PRESET = 'audioUploads';
 
@@ -267,6 +258,15 @@
       } finally {
         loader.style.display = "none";
       }
+    };
+    window.onload = () => {
+      const params = new URLSearchParams(window.location.search);
+      const name = params.get("name") || "";
+      const email = params.get("email") || "";
+      document.getElementById("userName").value = name;
+      document.getElementById("userEmail").value = email;
+      console.log("✅ 帶入名字：", name);
+      console.log("✅ 帶入信箱：", email);
     };
   </script>
 </body>
