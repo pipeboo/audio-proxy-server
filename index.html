@@ -13,6 +13,7 @@
       justify-content: center;
       padding: 40px;
     }
+
     .card {
       background: #fff;
       padding: 30px 40px;
@@ -21,19 +22,23 @@
       max-width: 460px;
       width: 100%;
     }
+
     h1 {
       font-size: 24px;
       text-align: center;
       margin-bottom: 30px;
     }
+
     h1::before {
       content: "🎤 ";
     }
+
     label {
       display: block;
       margin: 16px 0 8px;
       font-weight: 500;
     }
+
     input {
       width: 100%;
       padding: 10px 14px;
@@ -41,11 +46,13 @@
       border-radius: 6px;
       font-size: 16px;
     }
+
     .buttons {
       display: flex;
       justify-content: space-between;
       margin-top: 20px;
     }
+
     button {
       padding: 10px 16px;
       border: none;
@@ -58,22 +65,35 @@
       margin: 0 4px;
       transition: 0.3s;
     }
+
     button:disabled {
       background-color: #ccc;
       cursor: not-allowed;
     }
+
     button:active {
       transform: scale(0.96);
     }
+
     button.recording {
       background-color: #d9534f;
       animation: pulse 1s infinite;
     }
+
     @keyframes pulse {
-      0% { box-shadow: 0 0 0 0 rgba(217, 83, 79, 0.4); }
-      70% { box-shadow: 0 0 0 10px rgba(217, 83, 79, 0); }
-      100% { box-shadow: 0 0 0 0 rgba(217, 83, 79, 0); }
+      0% {
+        box-shadow: 0 0 0 0 rgba(217, 83, 79, 0.4);
+      }
+
+      70% {
+        box-shadow: 0 0 0 10px rgba(217, 83, 79, 0);
+      }
+
+      100% {
+        box-shadow: 0 0 0 0 rgba(217, 83, 79, 0);
+      }
     }
+
     #loader {
       border: 4px solid #f3f3f3;
       border-top: 4px solid #333;
@@ -84,25 +104,32 @@
       margin: 20px auto;
       display: none;
     }
+
     @keyframes spin {
-      to { transform: rotate(360deg); }
+      to {
+        transform: rotate(360deg);
+      }
     }
+
     #statusText {
       text-align: center;
       margin-top: 10px;
       color: #333;
       font-size: 14px;
     }
+
     #audioPreview {
       width: 100%;
       margin-top: 20px;
     }
+
     #qrCode {
       display: block;
       width: 200px;
       height: 200px;
       margin: 20px auto;
     }
+
     .back-button {
       display: inline-block;
       margin-top: 20px;
@@ -110,11 +137,13 @@
       font-size: 14px;
       text-decoration: none;
     }
+
     .back-button:hover {
       text-decoration: underline;
     }
   </style>
 </head>
+
 <body>
   <div class="card">
     <h1>錄音 + 資料送出</h1>
@@ -137,20 +166,19 @@
     <audio id="audioPreview" controls></audio>
     <img id="qrCode" />
 
-    <a href="https://kps0980.wixsite.com/huayu-dryflower" class="back-button" onclick="return confirm('確定要返回主頁？未上傳錄音將會遺失')">← 返回主頁</a>
+    <a href="https://kps0980.wixsite.com/huayu-dryflower" class="back-button"
+      onclick="return confirm('確定要返回主頁？未上傳錄音將會遺失')">← 返回主頁</a>
   </div>
 
   <script>
     // 讀取網址參數填入表單
-    document.addEventListener("DOMContentLoaded", () => {
-      const params = new URLSearchParams(window.location.search);
-      const name = params.get("name") || "";
-      const email = params.get("email") || "";
-      document.getElementById("userName").value = name;
-      document.getElementById("userEmail").value = email;
-      console.log("帶入名字：", name);
-      console.log("帶入信箱：", email);
-    });
+    const params = new URLSearchParams(window.location.search);
+    const name = params.get("name") || "";
+    const email = params.get("email") || "";
+    document.getElementById("userName").value = name;
+    document.getElementById("userEmail").value = email;
+    console.log("✅ 帶入名字：", name);
+    console.log("✅ 帶入信箱：", email);
 
     const CLOUDINARY_URL = 'https://api.cloudinary.com/v1_1/dcqb2xofg/auto/upload';
     const CLOUDINARY_UPLOAD_PRESET = 'audioUploads';
@@ -242,4 +270,5 @@
     };
   </script>
 </body>
+
 </html>
