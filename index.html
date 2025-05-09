@@ -187,8 +187,10 @@
     const defaultName = urlParams.get('name') || '';
     const defaultEmail = urlParams.get('email') || '';
     document.addEventListener("DOMContentLoaded", () => {
-      document.getElementById('userName').value = defaultName;
-      document.getElementById('userEmail').value = defaultEmail;
+      setTimeout(() => {
+        document.getElementById('userName').value = defaultName;
+        document.getElementById('userEmail').value = defaultEmail;
+      }, 100); // 延遲100ms確保元素已經出現
     });
 
     let recorder;
