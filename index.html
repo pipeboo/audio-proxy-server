@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -78,9 +79,17 @@
     }
 
     @keyframes pulse {
-      0% { box-shadow: 0 0 0 0 rgba(192,57,43,0.5); }
-      70% { box-shadow: 0 0 0 15px rgba(192,57,43,0); }
-      100% { box-shadow: 0 0 0 0 rgba(192,57,43,0); }
+      0% {
+        box-shadow: 0 0 0 0 rgba(192, 57, 43, 0.5);
+      }
+
+      70% {
+        box-shadow: 0 0 0 15px rgba(192, 57, 43, 0);
+      }
+
+      100% {
+        box-shadow: 0 0 0 0 rgba(192, 57, 43, 0);
+      }
     }
 
     #audioPreview {
@@ -108,8 +117,13 @@
     }
 
     @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
+      0% {
+        transform: rotate(0deg);
+      }
+
+      100% {
+        transform: rotate(360deg);
+      }
     }
 
     #statusText {
@@ -129,8 +143,25 @@
         height: 150px;
       }
     }
+
+    back-button {
+      display: inline-block;
+      margin-top: 20px;
+      padding: 10px 20px;
+      background-color: #ffffff00;
+      color: white;
+      text-decoration: none;
+      border-radius: 6px;
+      font-size: 15px;
+      transition: background-color 0.3s;
+    }
+
+    .back-button:hover {
+      background-color: #c5c5c5;
+    }
   </style>
 </head>
+
 <body>
   <div class="card">
     <h1>🎤 錄音 + 資料送出</h1>
@@ -148,7 +179,7 @@
 
     <audio id="audioPreview" controls></audio>
     <img id="qrCode" />
-
+    <a href="https://kps0980.wixsite.com/huayu-dryflower" class="back-button">← 返回主頁</a>
   </div>
 
   <script>
@@ -266,5 +297,5 @@
     };
   </script>
 </body>
-</html>
 
+</html>
