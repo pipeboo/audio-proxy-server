@@ -1,35 +1,165 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
-
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>錄音上傳 + QRcode產生</title>
+  <style>
+    body {
+      font-family: 'Noto Sans TC', sans-serif;
+      background-color: #f5f5f5;
+      color: #333;
+      padding: 20px;
+      max-width: 600px;
+      margin: auto;
+    }
+
+    .card {
+      background-color: #fff;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      padding: 28px;
+    }
+
+    h1 {
+      font-size: 22px;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 12px;
+      font-weight: 500;
+      color: #444;
+    }
+
+    input[type="text"],
+    input[type="email"] {
+      width: 100%;
+      padding: 10px;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      background-color: #fafafa;
+    }
+
+    .buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    button {
+      flex: 1 1 30%;
+      padding: 10px;
+      font-size: 15px;
+      border: none;
+      border-radius: 6px;
+      background-color: #666;
+      color: white;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #444;
+    }
+
+    button:disabled {
+      background-color: #bbb;
+      cursor: not-allowed;
+    }
+
+    .recording {
+      background-color: #c0392b !important;
+      animation: pulse 1.2s infinite;
+    }
+
+    @keyframes pulse {
+      0% { box-shadow: 0 0 0 0 rgba(192,57,43,0.5); }
+      70% { box-shadow: 0 0 0 15px rgba(192,57,43,0); }
+      100% { box-shadow: 0 0 0 0 rgba(192,57,43,0); }
+    }
+
+    #audioPreview {
+      width: 100%;
+      margin-top: 20px;
+    }
+
+    #qrCode {
+      margin: 20px auto 0;
+      display: block;
+      width: 200px;
+      height: 200px;
+      border-radius: 8px;
+    }
+
+    #loader {
+      display: none;
+      margin: 20px auto;
+      border: 6px solid #eee;
+      border-top: 6px solid #666;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    #statusText {
+      margin-top: 16px;
+      text-align: center;
+      font-weight: bold;
+    }
+
+    @media (max-width: 480px) {
+      button {
+        font-size: 14px;
+        padding: 8px;
+      }
+
+      #qrCode {
+        width: 150px;
+        height: 150px;
+      }
+    }
+  </style>
 </head>
-
 <body>
-  <h1>錄音 + 資料送出</h1>
+  <div class="card">
+    <h1>🎤 錄音 + 資料送出</h1>
+    <label>名字：<input type="text" id="userName"></label>
+    <label>Email：<input type="email" id="userEmail"></label>
 
-  <label>名字：<input type="text" id="userName"></label><br>
-  <label>Email：<input type="email" id="userEmail"></label><br><br>
+    <div class="buttons">
+      <button id="startButton">開始錄音</button>
+      <button id="stopButton">停止錄音</button>
+      <button id="uploadButton" disabled>上傳錄音</button>
+    </div>
 
-  <button id="startButton">開始錄音</button>
-  <button id="stopButton">停止錄音</button>
-  <button id="uploadButton" disabled>上傳錄音</button>
+    <div id="loader"></div>
+    <p id="statusText"></p>
 
-  <p id="statusText"></p>
+    <audio id="audioPreview" controls></audio>
+    <img id="qrCode" />
 
-  <audio id="audioPreview" controls style="margin-top:20px;"></audio><br>
-  <img id="qrCode" style="margin-top:20px; width:200px; height:200px;" />
+  </div>
 
   <script>
     const urlParams = new URLSearchParams(window.location.search);
     const defaultName = urlParams.get('name') || '';
     const defaultEmail = urlParams.get('email') || '';
-
     document.addEventListener("DOMContentLoaded", () => {
       document.getElementById('userName').value = defaultName;
       document.getElementById('userEmail').value = defaultEmail;
     });
+
     let recorder;
     let audioBlob;
     let recordingTimer;
@@ -37,62 +167,82 @@
     const CLOUDINARY_URL = 'https://api.cloudinary.com/v1_1/dcqb2xofg/auto/upload';
     const CLOUDINARY_UPLOAD_PRESET = 'audioUploads';
 
-    document.getElementById('startButton').onclick = async () => {
+    const startBtn = document.getElementById('startButton');
+    const stopBtn = document.getElementById('stopButton');
+    const uploadBtn = document.getElementById('uploadButton');
+    const loader = document.getElementById('loader');
+    const statusText = document.getElementById('statusText');
+
+    function showLoader(show) {
+      loader.style.display = show ? "block" : "none";
+    }
+
+    function vibrateIfSupported() {
+      if (navigator.vibrate) navigator.vibrate(200);
+    }
+
+    startBtn.onclick = async () => {
+      vibrateIfSupported();
+      startBtn.classList.add("recording");
+      statusText.textContent = "錄音中...";
+
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       recorder = new MediaRecorder(stream);
       const chunks = [];
 
       recorder.ondataavailable = e => chunks.push(e.data);
       recorder.onstop = () => {
+        startBtn.classList.remove("recording");
         audioBlob = new Blob(chunks, { type: 'audio/webm' });
-        document.getElementById('uploadButton').disabled = false;
-        document.getElementById('statusText').textContent = "錄音完成！可以上傳了。";
+        uploadBtn.disabled = false;
+        statusText.textContent = "錄音完成！可以上傳了。";
         document.getElementById('audioPreview').src = URL.createObjectURL(audioBlob);
       };
 
       recorder.start();
-      document.getElementById('statusText').textContent = "錄音中...";
       recordingTimer = setTimeout(() => {
         recorder.stop();
-        document.getElementById('statusText').textContent = "自動停止：錄音達到30秒";
-      }, 30000); // 最長30秒錄音
+        statusText.textContent = "自動停止：錄音達到30秒";
+      }, 30000);
     };
 
-    document.getElementById('stopButton').onclick = () => {
+    stopBtn.onclick = () => {
       if (recorder) {
+        vibrateIfSupported();
         recorder.stop();
         clearTimeout(recordingTimer);
-        document.getElementById('statusText').textContent = "錄音停止。";
+        startBtn.classList.remove("recording");
+        statusText.textContent = "錄音停止。";
       }
     };
 
-    document.getElementById('uploadButton').onclick = async () => {
+    uploadBtn.onclick = async () => {
       if (!audioBlob) return;
+      vibrateIfSupported();
 
-      const formData = new FormData();
-      formData.append('file', audioBlob);
-      formData.append('upload_preset', 'audioUploads');
+      showLoader(true);
+      statusText.textContent = "上傳錄音中...";
 
-      document.getElementById('statusText').textContent = "上傳錄音中...";
       try {
+        const formData = new FormData();
+        formData.append('file', audioBlob);
+        formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
+
         const cloudinaryResponse = await fetch(CLOUDINARY_URL, {
           method: 'POST',
           body: formData
         });
-        if (!cloudinaryResponse.ok) {
-          throw new Error("Cloudinary上傳失敗");
-        }
+        if (!cloudinaryResponse.ok) throw new Error("Cloudinary上傳失敗");
+
         const cloudinaryResult = await cloudinaryResponse.json();
         const realAudioUrl = cloudinaryResult.secure_url;
 
         const userName = document.getElementById('userName').value;
         const userEmail = document.getElementById('userEmail').value;
-
         const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=${encodeURIComponent(realAudioUrl)}`;
-
         document.getElementById('qrCode').src = qrCodeUrl;
 
-        document.getElementById('statusText').textContent = "正在傳送資料到主站...";
+        statusText.textContent = "正在傳送資料到主站...";
 
         await fetch("https://audio-proxy-server-one.vercel.app/save-audio", {
           method: "POST",
@@ -107,15 +257,14 @@
           })
         });
 
-        document.getElementById('statusText').textContent = "上傳成功！可以去主站查看囉～";
-
+        statusText.textContent = "✅ 上傳成功！可以去主站查看囉～";
       } catch (error) {
-        console.error(error);
-        document.getElementById('statusText').textContent = "上傳失敗：" + error.message;
+        statusText.textContent = "❌ 上傳失敗：" + error.message;
+      } finally {
+        showLoader(false);
       }
     };
   </script>
-
 </body>
-
 </html>
+
