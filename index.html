@@ -151,8 +151,8 @@
     <label for="userEmail">Email：</label>
     <input type="email" id="userEmail" />
 
-    <label for="name">ID：</label>
-    <input type="text" id="name"/>
+    <label for="userID">ID：</label>
+    <input type="text" id="userID"/>
 
     <div class="buttons">
       <button id="startButton">開始錄音</button>
@@ -239,7 +239,7 @@
         const audioUrl = data.secure_url;
 
         const email = document.getElementById("userEmail").value || "none@example.com";
-        const ID = document.getElementById("name").value || "匿名ID";
+        const ID = document.getElementById("userID").value || "匿名ID";
         const qr = `https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=${encodeURIComponent(audioUrl)}`;
         qrCode.src = qr;
 
@@ -264,7 +264,7 @@
       const email = params.get("email") || "";
       const ID = params.get("userID") || "";
       document.getElementById("userEmail").value = email;
-      document.getElementById("name").value = ID;
+      document.getElementById("userID").value = ID;
       console.log("✅ 帶入 ID：", ID);
       console.log("✅ 帶入信箱：", email);
     };
