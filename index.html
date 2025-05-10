@@ -152,7 +152,7 @@
     <input type="email" id="userEmail" />
 
     <label for="userID">ID：</label>
-    <input type="text" id="userID" readonly />
+    <input type="text" id="userID"/>
 
     <div class="buttons">
       <button id="startButton">開始錄音</button>
@@ -239,7 +239,7 @@
         const audioUrl = data.secure_url;
 
         const email = document.getElementById("userEmail").value || "none@example.com";
-        const ID = document.getElementById("userID").value || email.split("@")[0];  // 自動 fallback
+        const ID = document.getElementById("userID").value || "匿名ID";
         const qr = `https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=${encodeURIComponent(audioUrl)}`;
         qrCode.src = qr;
 
@@ -262,7 +262,7 @@
     window.onload = () => {
       const params = new URLSearchParams(window.location.search);
       const email = params.get("email") || "";
-      const ID = params.get("name") || email.split("@")[0];  // fallback 用 email 前綴
+      const ID = params.get("userID") || "";
       document.getElementById("userEmail").value = email;
       document.getElementById("userID").value = ID;
       console.log("✅ 帶入 ID：", ID);
