@@ -152,7 +152,7 @@
     <input type="email" id="userEmail" />
 
     <label for="userID">ID：</label>
-    <input type="text" id="userID"/>
+    <input type="text" id="name"/>
 
     <div class="buttons">
       <button id="startButton">開始錄音</button>
@@ -264,7 +264,7 @@
       const email = params.get("email") || "";
       const ID = params.get("userID") || "";
       document.getElementById("userEmail").value = email;
-      document.getElementById("userID").value = ID;
+      document.getElementById("name").value = ID;
       console.log("✅ 帶入 ID：", ID);
       console.log("✅ 帶入信箱：", email);
     };
