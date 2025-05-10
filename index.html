@@ -148,11 +148,11 @@
   <div class="card">
     <h1>錄音 + 資料送出</h1>
 
-    <label for="userID">ID：</label>
-    <input type="text" id="userID" />
-
     <label for="userEmail">Email：</label>
     <input type="email" id="userEmail" />
+
+    <label for="userID">ID：</label>
+    <input type="text" id="userID" readonly />
 
     <div class="buttons">
       <button id="startButton">開始錄音</button>
@@ -238,12 +238,11 @@
         const data = await uploadRes.json();
         const audioUrl = data.secure_url;
 
-        const ID = document.getElementById("userID").value || "匿名ID";
         const email = document.getElementById("userEmail").value || "none@example.com";
+        const ID = document.getElementById("userID").value || email.split("@")[0];  // 自動 fallback
         const qr = `https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=${encodeURIComponent(audioUrl)}`;
         qrCode.src = qr;
 
-        // 傳送至 proxy server
         await fetch("https://audio-proxy-server-one.vercel.app/save-audio", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -251,7 +250,6 @@
         });
 
         statusText.textContent = "✅ 上傳成功，可至主站查看！";
-
       } catch (err) {
         console.error(err);
         statusText.textContent = "❌ 上傳失敗：" + err.message;
@@ -259,13 +257,15 @@
         loader.style.display = "none";
       }
     };
+
+    // 自動填入表單
     window.onload = () => {
       const params = new URLSearchParams(window.location.search);
-      const ID = params.get("ID") || "";
       const email = params.get("email") || "";
-      document.getElementById("userID").value = ID;
+      const ID = params.get("name") || email.split("@")[0];  // fallback 用 email 前綴
       document.getElementById("userEmail").value = email;
-      console.log("✅ 帶入ID：", ID);
+      document.getElementById("userID").value = ID;
+      console.log("✅ 帶入 ID：", ID);
       console.log("✅ 帶入信箱：", email);
     };
   </script>
