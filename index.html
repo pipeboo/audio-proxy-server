@@ -148,7 +148,7 @@
   <div class="card">
     <h1>錄音 + 資料送出</h1>
 
-    <label for="userName">名字：</label>
+    <label for="userID">ID：</label>
     <input type="text" id="userName" />
 
     <label for="userEmail">Email：</label>
@@ -238,7 +238,7 @@
         const data = await uploadRes.json();
         const audioUrl = data.secure_url;
 
-        const name = document.getElementById("userName").value || "匿名";
+        const ID = document.getElementById("userID").value || "匿名ID";
         const email = document.getElementById("userEmail").value || "none@example.com";
         const qr = `https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=${encodeURIComponent(audioUrl)}`;
         qrCode.src = qr;
@@ -247,7 +247,7 @@
         await fetch("https://audio-proxy-server-one.vercel.app/save-audio", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ name, email, audioUrl, qrCodeUrl: qr })
+          body: JSON.stringify({ ID, email, audioUrl, qrCodeUrl: qr })
         });
 
         statusText.textContent = "✅ 上傳成功，可至主站查看！";
@@ -261,11 +261,11 @@
     };
     window.onload = () => {
       const params = new URLSearchParams(window.location.search);
-      const name = params.get("name") || "";
+      const ID = params.get("ID") || "";
       const email = params.get("email") || "";
-      document.getElementById("userName").value = name;
+      document.getElementById("userID").value = ID;
       document.getElementById("userEmail").value = email;
-      console.log("✅ 帶入名字：", name);
+      console.log("✅ 帶入ID：", ID);
       console.log("✅ 帶入信箱：", email);
     };
   </script>
