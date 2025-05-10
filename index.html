@@ -239,7 +239,7 @@
         const audioUrl = data.secure_url;
 
         const email = document.getElementById("userEmail").value || "none@example.com";
-        const ID = document.getElementById("userID").value || "匿名ID";
+        const ID = document.getElementById("name").value || "匿名ID";
         const qr = `https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=${encodeURIComponent(audioUrl)}`;
         qrCode.src = qr;
 
