@@ -148,11 +148,14 @@
   <div class="card">
     <h1>錄音 + 資料送出</h1>
 
+    <label for="audioName">錄音名稱：</label>
+    <input type="text" id="audioName" placeholder="例如：送給媽媽的祝福" />
+
     <label for="userEmail">Email：</label>
     <input type="email" id="userEmail" />
 
     <label for="userID">ID：</label>
-    <input type="text" id="userID"/>
+    <input type="text" id="userID" />
 
     <div class="buttons">
       <button id="startButton">開始錄音</button>
@@ -242,6 +245,7 @@
         const ID = document.getElementById("userID").value || "匿名ID";
         const qr = `https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=${encodeURIComponent(audioUrl)}`;
         qrCode.src = qr;
+        const name = document.getElementById("audioName").value || "未命名錄音";
 
         await fetch("https://audio-proxy-server-one.vercel.app/save-audio", {
           method: "POST",
