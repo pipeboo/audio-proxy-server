@@ -246,11 +246,11 @@
         const qr = `https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=${encodeURIComponent(audioUrl)}`;
         qrCode.src = qr;
         const name = document.getElementById("audioName").value || "未命名錄音";
-
+        
         await fetch("https://audio-proxy-server-one.vercel.app/save-audio", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ ID, email, audioUrl, qrCodeUrl: qr })
+          body: JSON.stringify({ ID, email, name, audioUrl, qrCodeUrl: qr })
         });
 
         statusText.textContent = "✅ 上傳成功，可至主站查看！";
